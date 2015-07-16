@@ -23,3 +23,19 @@ But remember you have to edit every part of the module folders and files to matc
 data.input
 
 data.page
+
+## How To
+
+### How to return JSON data
+
+You can return code like below.
+
+	private static function send( &$data ) {
+		$re = [];
+        $re['code'] = 0;
+        $response = new JsonResponse( $re );
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        return $response;
+	}
+
+
