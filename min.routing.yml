@@ -1,0 +1,6 @@
+min.list:
+  path: '/min/{page}'
+  defaults:
+    _controller: Drupal\min\Controller\MinController::defaultController
+  requirements:
+    _permission: 'access content'

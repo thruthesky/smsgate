@@ -1,0 +1,17 @@
+<?php
+
+function smsgate_theme()
+{
+    return [
+        'post.layout' => [
+            'variables' => [ 'data' => null ],
+            'template' => 'post.layout'
+        ],
+    ];
+
+}
+function smsgate_preprocess( &$variables, $hook )
+{
+
+}
+
