@@ -1,3 +1,22 @@
-# SMSGate
+# Min module
 
-Refer - https://docs.google.com/document/d/1jFAlx74PJV_KkkAmPAL0q9oCewBdHv2Av6_CpzIQelg/edit#
+This is the minimum module you can extends to build your own module.
+
+## How to extends
+
+* Rename folder and file names to your module.
+* Search 'min' and replace to your module name.
+
+
+## routing
+
+/min
+/min/index
+
+## layout
+
+## twig variables
+
+data.input
+
+data.page
