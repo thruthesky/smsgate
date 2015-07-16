@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Min module
 
 This is the minimum module you can extends to build your own module.
