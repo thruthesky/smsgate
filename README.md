@@ -2,6 +2,8 @@
 
 This is the minimum module you can extends to build your own module.
 
+But remember you have to edit every part of the module folders and files to match it to your module name. 
+
 ## How to extends
 
 * Rename folder and file names to your module.
