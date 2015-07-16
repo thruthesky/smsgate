@@ -1,0 +1,12 @@
+smsgate.index:
+  path: '/smsgate'
+  defaults:
+    _controller: Drupal\smsgate\Controller\SMSGateController::defaultController
+  requirements:
+    _permission: 'access content'
+smsgate.page:
+  path: '/smsgate/{page}'
+  defaults:
+    _controller: Drupal\smsgate\Controller\SMSGateController::defaultController
+  requirements:
+    _permission: 'access content'

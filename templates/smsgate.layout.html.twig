@@ -1,0 +1,13 @@
+<section class="message">
+    <div class="{{ data.page }}">
+        {% if data.error %}
+            <b>{{ data.error }}</b>
+        {% else %}
+            {% if data.page %}
+                {% include 'modules/smsgate/templates/smsgate.' ~ data.page ~ '.html.twig' %}
+            {% else %}
+                Wrong access. No 'page' value in data.
+            {% endif %}
+        {% endif %}
+    </div>
+</section>
