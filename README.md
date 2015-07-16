@@ -1,2 +1,3 @@
-# smsgate
-SMSGate
+# SMSGate
+
+This is SMSGate module
