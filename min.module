@@ -1,16 +1,15 @@
 <?php
 
-function smsgate_theme()
+function min_theme()
 {
     return [
-        'post.layout' => [
+        'min.layout' => [
             'variables' => [ 'data' => null ],
-            'template' => 'post.layout'
+            'template' => 'min.layout'
         ],
     ];
-
 }
-function smsgate_preprocess( &$variables, $hook )
+function min_preprocess( &$variables, $hook )
 {
 
 }

@@ -8,21 +8,31 @@ class MinController extends ControllerBase
 
     private static $input;
 
-    private static function theme($data) {
-        return [
-            '#theme' => 'message.layout',
-            '#data' => $data,
-        ];
+    public static function defaultController($page=null)
+    {
+        $data = [];
+        $data['input'] = self::input();
+        if ( ! self::checkLogin($data) ) return self::theme($data);
+
+        /** @note default value for page */
+        if ( $page == null ) $page = 'index';
+        else if ( $page == 'list' ) $page = 'collect';
+
+        $data['page'] = $page;
+
+        if ( $render = self::$page($data) ) return $render;
+        else {
+            $theme = self::theme($data);
+            return $theme;
+        }
     }
 
-    public static function defaultController($page)
-    {
-        $data = ['page' => $page];
-        $data['input'] = self::input();
-        if (!self::checkLogin($data)) return self::theme($data);
-        if ($page == 'list') $page = 'collect';
-        if ($render = self::$page($data)) return $render;
-        else return self::theme($data);
+
+    private static function theme($data) {
+        return [
+            '#theme' => 'min.layout',
+            '#data' => $data,
+        ];
     }
 
 
@@ -49,6 +59,10 @@ class MinController extends ControllerBase
 
     private static function uid() {
         return \Drupal::currentUser()->getAccount()->id();
+    }
+
+    private static function index( &$data ) {
+        $data['title'] = "index page";
     }
 
 }

@@ -4,7 +4,7 @@
             <b>{{ data.error }}</b>
         {% else %}
             {% if data.page %}
-                {% include dir_message ~ '/templates/min.' ~ data.page ~ '.html.twig' %}
+                {% include 'modules/min/templates/min.' ~ data.page ~ '.html.twig' %}
             {% else %}
                 Wrong access. No 'page' value in data.
             {% endif %}
