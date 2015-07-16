@@ -107,12 +107,18 @@ class Data extends ContentEntityBase {
                 'max_length' => 32,
             ));
 
-        $fields['stamp_sent'] = BaseFieldDefinition::create('integer')
-            ->setLabel(t('Sent'))
+
+        $fields['stamp_record'] = BaseFieldDefinition::create('integer')
+            ->setLabel(t('Stamp Record'))
+            ->setDescription(t('the stamp of the time that this SMS was received to be scheduled'))
+            ->setDefaultValue(0);
+
+        $fields['stamp_send'] = BaseFieldDefinition::create('integer')
+            ->setLabel(t('Stamp Send'))
             ->setDescription(t('the stamp of the time of SMS sent for the message'))
             ->setDefaultValue(0);
 
-        $fields['sent_result'] = BaseFieldDefinition::create('string')
+        $fields['result'] = BaseFieldDefinition::create('string')
             ->setLabel(t('Result'))
             ->setDescription(t('Result of SMS sending. Y for success, N for failure, Empty for not sending yet.'))
             ->setSettings(array(

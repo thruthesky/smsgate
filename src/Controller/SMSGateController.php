@@ -2,6 +2,8 @@
 namespace Drupal\smsgate\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\smsgate\Entity\Data;
+use Drupal\user\UserAuth;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SMSGateController extends ControllerBase
@@ -62,16 +64,84 @@ class SMSGateController extends ControllerBase
         return \Drupal::currentUser()->getAccount()->id();
     }
 
+
+    /**
+     *
+     * It only checks if the password is right or not.
+     * @note it does not login.
+     * @param $name
+     * @param $password
+     * @return mixed
+     *
+     *      - User ID on success.
+     *      - FALSE on failure
+     */
+    public static function checkPassword($name, $password)
+    {
+        $userStorage = \Drupal::entityManager();
+        $passwordChecker = \Drupal::service('password');
+        $auth = new UserAuth($userStorage, $passwordChecker);
+        return $auth->authenticate($name, $password);
+    }
+
+
     private static function index( &$data ) {
         $data['title'] = "index page";
     }
 
     private static function send( &$data ) {
+        $request = \Drupal::request();
         $re = [];
-        $re['code'] = 0;
+        if ( self::validateInput($re) ) {
+            if ( $uid = self::checkUserInfo($re) ) {
+                $data = Data::create();
+                $data->setOwnerId($uid);
+                $data->set('number', $request->get('number'));
+                $data->set('message', $request->get('message'));
+                $data->set('stamp_record', time());
+                $data->set('stamp_send', 0);
+                $data->set('result', '');
+                $data->save();
+                $re['code'] = 0;
+                $re['id'] = $data->id();
+            }
+        }
         $response = new JsonResponse( $re );
         $response->headers->set('Access-Control-Allow-Origin', '*');
         return $response;
+    }
+
+    private static function validateInput(&$re)
+    {
+        $request = \Drupal::request();
+        if ( ! $request->get('number') ) {
+            $re['code'] = -409;
+            $re['message'] = "Number is missing.";
+            return false;
+        }
+        else if ( ! $request->get('message') ) {
+            $re['code'] = -410;
+            $re['message'] = 'Message is empty.';
+            return false;
+        }
+
+        if ( strlen($request->get('message')) > 80 ) {
+            $re['code'] = -411;
+            $re['message'] = 'Message is longer than 80 characters';
+            return false;
+        }
+        return true;
+    }
+
+    private static function checkUserInfo(&$re)
+    {
+        $request = \Drupal::request();
+        if ( $uid = self::checkPassword($request->get('username'), $request->get('password')) ) return $uid;
+        else {
+            $re['code'] = -1;
+            $re['message'] = "Login failed";
+            return false;
+        }
     }
 
 }
