@@ -1,0 +1,4 @@
+name: SMSGate
+type: module
+description: 'SMSGate post module.'
+core: 8.x
