@@ -197,7 +197,6 @@ class SMSGateController extends ControllerBase
         return $data->id();
     }
 
-
     private static function record_send_result() {
         $request = \Drupal::request();
         $data = Data::load($request->get('id'));
