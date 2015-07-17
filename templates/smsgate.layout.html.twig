@@ -2,6 +2,7 @@
     <div class="{{ data.page }}">
         {% if data.error %}
             <b>{{ data.error }}</b>
+            <b>{{ data.message }}</b>
         {% else %}
             {% if data.page %}
                 {% include 'modules/smsgate/templates/smsgate.' ~ data.page ~ '.html.twig' %}

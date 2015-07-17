@@ -1,0 +1,27 @@
+<style>
+    textarea[name='numbers'] {
+        width:160px;
+        min-height:60px;
+    }
+    textarea[name='message'] {
+        width:160px;
+        min-height:80px;
+    }
+</style>
+{% include 'modules/smsgate/templates/smsgate.menu.html.twig' %}
+Create New SMS<br>
+<form action="/smsgate/write_submit">
+    <div class="row">
+        <div class="caption">Numbers</div>
+        <div class="text"><textarea name="numbers"></textarea></div>
+    </div>
+    <div class="row">
+        <div class="caption">Message</div>
+        <div class="text"><textarea name="message"></textarea></div>
+    </div>
+    <input type="submit">
+</form>
+
+<ul>
+    <li>You can input more than 1 numbers. Put only one(1) mobile number on each line.</li>
+</ul>

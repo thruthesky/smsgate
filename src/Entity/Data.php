@@ -24,6 +24,20 @@ use Drupal\user\UserInterface;
 class Data extends ContentEntityBase {
 
     /**
+     *
+     */
+    public static function getDataNextTry()
+    {
+        db_select('smsgate_data')
+            ->fields(null, ['id'])
+            ->condition('stamp_send_try', 0)
+            ->orderBy('created', 'DESC')
+            ->range(0, 1)
+            ->execute();
+
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getCreatedTime() {
@@ -113,9 +127,14 @@ class Data extends ContentEntityBase {
             ->setDescription(t('the stamp of the time that this SMS was received to be scheduled'))
             ->setDefaultValue(0);
 
-        $fields['stamp_send'] = BaseFieldDefinition::create('integer')
-            ->setLabel(t('Stamp Send'))
+        $fields['stamp_sent'] = BaseFieldDefinition::create('integer')
+            ->setLabel(t('Stamp Sent'))
             ->setDescription(t('the stamp of the time of SMS sent for the message'))
+            ->setDefaultValue(0);
+
+        $fields['stamp_send_try'] = BaseFieldDefinition::create('integer')
+            ->setLabel(t('Stamp Send Try'))
+            ->setDescription(t('the stamp of the time that the gate tried last.'))
             ->setDefaultValue(0);
 
         $fields['result'] = BaseFieldDefinition::create('string')

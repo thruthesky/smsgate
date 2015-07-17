@@ -64,6 +64,12 @@ class SMSGateController extends ControllerBase
         return \Drupal::currentUser()->getAccount()->id();
     }
 
+    private static function json($re) {
+        $response = new JsonResponse( $re );
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        return $response;
+    }
+
 
     /**
      *
@@ -94,39 +100,50 @@ class SMSGateController extends ControllerBase
         $re = [];
         if ( self::validateInput($re) ) {
             if ( $uid = self::checkUserInfo($re) ) {
-                $data = Data::create();
-                $data->setOwnerId($uid);
-                $data->set('number', $request->get('number'));
-                $data->set('message', $request->get('message'));
-                $data->set('stamp_record', time());
-                $data->set('stamp_send', 0);
-                $data->set('result', '');
-                $data->save();
-                $re['code'] = 0;
-                $re['id'] = $data->id();
+                self::createDataRecord($re, $uid);
             }
         }
-        $response = new JsonResponse( $re );
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        return $response;
+        return self::json($re);
+    }
+
+    private static function write( &$data ) {
+
+    }
+    private static function write_submit( &$data ) {
+
+        if ( self::validateInput($data) ) {
+            $request = \Drupal::request();
+            $_numbers = $request->get('numbers');
+            $numbers = explode("\n", $_numbers);
+            foreach($numbers as $number) {
+                $id = self::insertData(self::uid(), $number, $request->get('message'));
+                $data['list'][$id]['number'] = $number;
+            }
+        }
+    }
+
+    private static function loadData( &$data ) {
+        Data::getDataNextTry();
     }
 
     private static function validateInput(&$re)
     {
         $request = \Drupal::request();
-        if ( ! $request->get('number') ) {
-            $re['code'] = -409;
+        $number = $request->get('number');
+        $numbers = $request->get('numbers');
+        if ( empty($number) && empty($numbers) ) {
+            $re['error'] = -409;
             $re['message'] = "Number is missing.";
             return false;
         }
         else if ( ! $request->get('message') ) {
-            $re['code'] = -410;
+            $re['error'] = -410;
             $re['message'] = 'Message is empty.';
             return false;
         }
 
         if ( strlen($request->get('message')) > 80 ) {
-            $re['code'] = -411;
+            $re['error'] = -411;
             $re['message'] = 'Message is longer than 80 characters';
             return false;
         }
@@ -138,10 +155,29 @@ class SMSGateController extends ControllerBase
         $request = \Drupal::request();
         if ( $uid = self::checkPassword($request->get('username'), $request->get('password')) ) return $uid;
         else {
-            $re['code'] = -1;
+            $re['error'] = -1;
             $re['message'] = "Login failed";
             return false;
         }
+    }
+
+    private static function createDataRecord(&$re,$uid)
+    {
+        $request = \Drupal::request();
+        $re['error'] = 0;
+        $re['id'] = self::insertData($uid, $request->get('number'), $request->get('message'));
+    }
+    private static function insertData($uid, $number, $message) {
+        $data = Data::create();
+        $data->setOwnerId($uid);
+        $data->set('number', $number);
+        $data->set('message', $message);
+        $data->set('stamp_record', time());
+        $data->set('stamp_sent', 0);
+        $data->set('stamp_send_try', 0);
+        $data->set('result', '');
+        $data->save();
+        return $data->id();
     }
 
 }
