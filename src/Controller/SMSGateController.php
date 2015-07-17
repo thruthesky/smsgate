@@ -199,9 +199,13 @@ class SMSGateController extends ControllerBase
 
     private static function record_send_result() {
         $request = \Drupal::request();
-        $data = Data::load($request->get('id'));
-        $data->set('result', $request->get('result'))->save();
-        return self::json(['error'=>0]);
+        $id = $request->get('id');
+        if ( is_numeric($id) ) {
+            $data = Data::load($id);
+            $data->set('result', $request->get('result'))->save();
+        }
+        else $id = 0;
+        return self::json(['error'=>0, 'id'=>$id]);
     }
 
 }

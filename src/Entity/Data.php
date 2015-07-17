@@ -35,12 +35,14 @@ class Data extends ContentEntityBase {
             ->range(0, 1)
             ->execute();
         $row = $result->fetchAssoc(\PDO::FETCH_ASSOC);
-        $data = self::load($row['id']);
-        $data->set('stamp_send_try', time())->save();
         $re = [];
-        $re['id'] = $data->id();
-        $re['number'] = $data->get('number')->value;
-        $re['message'] = $data->get('message')->value;
+        if ( $row ) {
+            $data = self::load($row['id']);
+            $data->set('stamp_send_try', time())->save();
+            $re['id'] = $data->id();
+            $re['number'] = $data->get('number')->value;
+            $re['message'] = $data->get('message')->value;
+        }
         return $re;
     }
 
