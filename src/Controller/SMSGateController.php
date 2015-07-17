@@ -17,7 +17,6 @@ class SMSGateController extends ControllerBase
         $data['input'] = self::input();
 
 
-        if ( ! self::checkLogin($data) ) return self::theme($data);
 
         /** @note default value for page */
         if ( $page == null ) $page = 'index';
@@ -73,7 +72,7 @@ class SMSGateController extends ControllerBase
     }
 
     private static function json($re) {
-        $response = new JsonResponse( $re );
+        $response = new JsonResponse( json_encode($re) );
         $response->headers->set('Access-Control-Allow-Origin', '*');
         return $response;
     }
@@ -131,7 +130,8 @@ class SMSGateController extends ControllerBase
     }
 
     private static function loadData( &$data ) {
-        Data::getDataNextTry();
+        $re = Data::getDataNextTry();
+        return self::json($re);
     }
 
     private static function validateInput(&$re)
@@ -195,6 +195,14 @@ class SMSGateController extends ControllerBase
         $data->set('result', '');
         $data->save();
         return $data->id();
+    }
+
+
+    private static function record_send_result() {
+        $request = \Drupal::request();
+        $data = Data::load($request->get('id'));
+        $data->set('result', $request->get('result'))->save();
+        return self::json(['error'=>0]);
     }
 
 }

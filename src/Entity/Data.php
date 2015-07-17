@@ -28,13 +28,20 @@ class Data extends ContentEntityBase {
      */
     public static function getDataNextTry()
     {
-        db_select('smsgate_data')
+        $result = db_select('smsgate_data')
             ->fields(null, ['id'])
             ->condition('stamp_send_try', 0)
-            ->orderBy('created', 'DESC')
+            ->orderBy('created', 'ASC')
             ->range(0, 1)
             ->execute();
-
+        $row = $result->fetchAssoc(\PDO::FETCH_ASSOC);
+        $data = self::load($row['id']);
+        $data->set('stamp_send_try', time())->save();
+        $re = [];
+        $re['id'] = $data->id();
+        $re['number'] = $data->get('number')->value;
+        $re['message'] = $data->get('message')->value;
+        return $re;
     }
 
     /**
