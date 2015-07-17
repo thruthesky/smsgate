@@ -15,6 +15,8 @@ class SMSGateController extends ControllerBase
     {
         $data = [];
         $data['input'] = self::input();
+
+
         if ( ! self::checkLogin($data) ) return self::theme($data);
 
         /** @note default value for page */
@@ -22,6 +24,8 @@ class SMSGateController extends ControllerBase
         else if ( $page == 'list' ) $page = 'collect';
 
         $data['page'] = $page;
+
+
 
         if ( $render = self::$page($data) ) return $render;
         else {
@@ -51,7 +55,11 @@ class SMSGateController extends ControllerBase
     }
 
     private static function checkLogin(&$data) {
+        $request = \Drupal::request();
         if ( $uid = self::uid() ) {
+            return $uid;
+        }
+        else if ( $uid = self::checkUserInfo($data) ) {
             return $uid;
         }
         else {
@@ -153,11 +161,20 @@ class SMSGateController extends ControllerBase
     private static function checkUserInfo(&$re)
     {
         $request = \Drupal::request();
-        if ( $uid = self::checkPassword($request->get('username'), $request->get('password')) ) return $uid;
-        else {
-            $re['error'] = -1;
-            $re['message'] = "Login failed";
+        $username = $request->get('username');
+        $password = $request->get('password');
+        if ( empty($username) || empty($password) ) {
+            $re['error'] = -2;
+            $re['message'] = "Username or password is empty";
             return false;
+        }
+        else {
+            if ( $uid = self::checkPassword($request->get('username'), $request->get('password')) ) return $uid;
+            else {
+                $re['error'] = -1;
+                $re['message'] = "Login failed";
+                return false;
+            }
         }
     }
 
