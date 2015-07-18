@@ -2,7 +2,9 @@
 namespace Drupal\smsgate\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\library\Library;
 use Drupal\smsgate\Entity\Data;
+use Drupal\smsgate\Entity\Sent;
 use Drupal\user\UserAuth;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -129,6 +131,12 @@ class SMSGateController extends ControllerBase
         }
     }
 
+    /**
+     * @param $data
+     * @return JsonResponse
+     *
+     *
+     */
     private static function loadData( &$data ) {
         $re = Data::getDataNextTry();
         return self::json($re);
@@ -139,12 +147,16 @@ class SMSGateController extends ControllerBase
         $request = \Drupal::request();
         $number = $request->get('number');
         $numbers = $request->get('numbers');
+        $message = $request->get('message');
+
+        $number = trim($number);
+        $message = trim($message);
         if ( empty($number) && empty($numbers) ) {
             $re['error'] = -409;
             $re['message'] = "Number is missing.";
             return false;
         }
-        else if ( ! $request->get('message') ) {
+        else if ( empty($message) ) {
             $re['error'] = -410;
             $re['message'] = 'Message is empty.';
             return false;
@@ -190,19 +202,43 @@ class SMSGateController extends ControllerBase
         $data->set('number', $number);
         $data->set('message', $message);
         $data->set('stamp_record', time());
-        $data->set('stamp_sent', 0);
-        $data->set('stamp_send_try', 0);
-        $data->set('result', '');
+        $data->set('stamp_next_send', 0);
+        $data->set('no_send_try', 0);
         $data->save();
         return $data->id();
     }
 
+    /**
+     * @return JsonResponse
+     *
+     * @see https://docs.google.com/document/d/1jFAlx74PJV_KkkAmPAL0q9oCewBdHv2Av6_CpzIQelg/edit#heading=h.jqu73lxtk4ao
+     *
+     */
     private static function record_send_result() {
         $request = \Drupal::request();
         $id = $request->get('id');
         if ( is_numeric($id) ) {
             $data = Data::load($id);
-            $data->set('result', $request->get('result'))->save();
+            $result = $request->get('result');
+            if ( $result == 'Y' ) {
+                $sent = Sent::create();
+                $sent->setOwnerId($data->getOwnerId());
+                $sent->set('stamp_record', $data->get('stamp_record')->value);
+                $sent->set('no_send_try', $data->get('no_send_try')->value);
+                $sent->set('sender', $request->get('sender'));
+                $sent->set('number', $data->get('number')->value);
+                $sent->set('message', $data->get('message')->value);
+                $sent->save();
+                $data->delete();
+            }
+            else {
+                $no = $data->get('no_send_try')->value;
+                $no ++;
+                Library::log("no:$no");
+                $data->set('no_send_try', $no);
+                $data->set('sender', $request->get('sender'));
+                $data->save();
+            }
         }
         else $id = 0;
         return self::json(['error'=>0, 'id'=>$id]);

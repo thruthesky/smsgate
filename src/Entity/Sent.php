@@ -11,9 +11,9 @@ use Drupal\user\UserInterface;
  * @note refer https://docs.google.com/document/d/1jFAlx74PJV_KkkAmPAL0q9oCewBdHv2Av6_CpzIQelg/edit
  *
  * @ContentEntityType(
- *   id = "smsgate_data",
- *   label = @Translation("SMSGate Data entity"),
- *   base_table = "smsgate_data",
+ *   id = "smsgate_sent",
+ *   label = @Translation("SMSGate Sent entity"),
+ *   base_table = "smsgate_sent",
  *   fieldable = TRUE,
  *   entity_keys = {
  *     "id" = "id",
@@ -22,41 +22,9 @@ use Drupal\user\UserInterface;
  *   }
  * )
  */
-class Data extends ContentEntityBase {
+class Sent extends ContentEntityBase {
 
-    /**
-     *
-     * @see https://docs.google.com/document/d/1jFAlx74PJV_KkkAmPAL0q9oCewBdHv2Av6_CpzIQelg/edit#heading=h.e95bj4yvltvz
-     *
-     *
-     * SMS 데이터 전송을 위해서 데이터를 하나 추출한다.
-     *
-     * - 한번 전송한 데이터가 실패를 하면, 5 분 후에 다시 전송 하도록 한다.
-     *
-     */
-    public static function getDataNextTry()
-    {
-        $request = \Drupal::request();
-        $result = db_select('smsgate_data')
-            ->fields(null, ['id'])
-            ->condition('stamp_next_send', time(), '<')
-            ->orderBy('created', 'ASC')
-            ->range(0, 1)
-            ->execute();
-        $row = $result->fetchAssoc(\PDO::FETCH_ASSOC);
-        $re = [];
-        if ( $row ) {
-            $data = self::load($row['id']);
-            $data
-                ->set('stamp_next_send', time() + 60 * 1)
-                ->set('sender', $request->get('sender'))
-                ->save();
-            $re['id'] = $data->id();
-            $re['number'] = $data->get('number')->value;
-            $re['message'] = $data->get('message')->value;
-        }
-        return $re;
-    }
+
 
     /**
      * {@inheritdoc}
@@ -142,23 +110,15 @@ class Data extends ContentEntityBase {
                 'max_length' => 32,
             ));
 
-
         $fields['stamp_record'] = BaseFieldDefinition::create('integer')
             ->setLabel(t('Stamp Record'))
             ->setDescription(t('the stamp of the time that this SMS was received to be scheduled'))
-            ->setDefaultValue(0);
-
-
-        $fields['stamp_next_send'] = BaseFieldDefinition::create('integer')
-            ->setLabel(t('Stamp Send Try'))
-            ->setDescription(t('the stamp of the time that the gate tried last.'))
             ->setDefaultValue(0);
 
         $fields['no_send_try'] = BaseFieldDefinition::create('integer')
             ->setLabel(t('No Send Try'))
             ->setDescription(t('The number of send. It is the number of failure also.'))
             ->setDefaultValue(0);
-
 
         $fields['sender'] = BaseFieldDefinition::create('string')
             ->setLabel(t('Sender'))
