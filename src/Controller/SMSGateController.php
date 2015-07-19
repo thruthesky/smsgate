@@ -245,4 +245,13 @@ class SMSGateController extends ControllerBase
         return self::json(['error'=>0, 'id'=>$id]);
     }
 
+    private static function adjustNumber($number)
+    {
+        $number = preg_replace("/[^0-9]/", '', $number);
+        $number = str_replace("639", "09", $number);
+        $number = str_replace("630", "0", $number);
+        $number = str_replace("63", "0", $number);
+        return $number;
+    }
+
 }
