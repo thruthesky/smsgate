@@ -74,7 +74,7 @@ class SMSGateController extends ControllerBase
     }
 
     private static function json($re) {
-        $response = new JsonResponse( json_encode($re) );
+        $response = new JsonResponse( $re );
         $response->headers->set('Access-Control-Allow-Origin', '*');
         return $response;
     }

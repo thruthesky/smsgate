@@ -2,8 +2,8 @@
 use Drupal\Core\Http\Client;
 
 $url_server = "http://sonub.org";
-$username = 'canary';
-$password = 'canary';
+$username = 'thruth3esky';
+$password = 'asdf99';
 
 $client = new Client();
 
@@ -14,12 +14,19 @@ for ( $i = 0; $i < 3 ; $i ++) {
     $response = $client->post($url, [], ['verify'=>false]);
     $code = $response->getStatusCode();
     $re = $response->json();
-    if ( isset($re['error']) && $re['error'] ) {
-        echo "ERROR - $re[error]\n";
+    //$re = json_decode($re,true);
+    print_r($re);
+
+
+
+    if ( isset($re['error']) && $re['error'] < 0 ) {
+        echo "ERROR - $re[error] - $re[message]\n";
     }
     else {
         echo "SUCCESS - $number : $message\n";
     }
+
+
 }
 
 
