@@ -132,6 +132,13 @@ class SMSGateController extends ControllerBase
         }
     }
 
+
+    private static function schedule( &$data ) {
+        $data['list'] = Data::loadMultiple();
+    }
+
+
+
     /**
      * @param $data
      * @return JsonResponse

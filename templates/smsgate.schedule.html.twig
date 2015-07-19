@@ -1,0 +1,23 @@
+<h1>Scheduled SMS Data List</h1>
+This data will be sent soon<br>
+
+
+<table>
+    <tr>
+        <td>Number</td>
+        <td>Created</td>
+        <td>Try</td>
+        <td>Sender</td>
+        <td>Message</td>
+    </tr>
+{% for sms in data.list %}
+    <tr>
+        <td>{{ sms.number.value }}</td>
+        <td>{{ sms.created.value | date('Y-m-d H:i:s')}}</td>
+        <td>{{ sms.no_send_stry.value }}</td>
+        <td>{{ sms.sender.value }}</td>
+        <td>{{ sms.number.value }}</td>
+    </tr>
+{% endfor %}
+
+</table>
