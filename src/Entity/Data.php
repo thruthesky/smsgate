@@ -29,13 +29,14 @@ class Data extends ContentEntityBase {
      * @see https://docs.google.com/document/d/1jFAlx74PJV_KkkAmPAL0q9oCewBdHv2Av6_CpzIQelg/edit#heading=h.e95bj4yvltvz
      *
      *
-     * SMS 데이터 전송을 위해서 데이터를 하나 추출한다.
+     * This will extract an SMS data to deliver to SMSGate client(sender)
      *
-     * - 한번 전송한 데이터가 실패를 하면, 5 분 후에 다시 전송 하도록 한다.
+     * Once it is extracted, it sets 5 minutes for the next try if every it needs to be re-send.
      *
      */
     public static function getDataNextTry()
     {
+        self::moveOldFailData();
         $request = \Drupal::request();
         $result = db_select('smsgate_data')
             ->fields(null, ['id'])
@@ -48,7 +49,7 @@ class Data extends ContentEntityBase {
         if ( $row ) {
             $data = self::load($row['id']);
             $data
-                ->set('stamp_next_send', time() + 60 * 1)
+                ->set('stamp_next_send', time() + 60 * 5)
                 ->set('sender', $request->get('sender'))
                 ->save();
             $re['id'] = $data->id();
@@ -56,6 +57,16 @@ class Data extends ContentEntityBase {
             $re['message'] = $data->get('message')->value;
         }
         return $re;
+    }
+
+    /**
+     * @todo check if this function is needed. Mostly mobile numbers will be delivered.
+     * Transfer data which is older than 5 days and failed more than 100 times.
+     *
+     */
+    private static function moveOldFailData()
+    {
+
     }
 
     /**
