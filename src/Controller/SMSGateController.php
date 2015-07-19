@@ -116,7 +116,7 @@ class SMSGateController extends ControllerBase
     }
 
     private static function write( &$data ) {
-
+	self::checkLogin($data);
     }
     private static function write_submit( &$data ) {
 
