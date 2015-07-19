@@ -1,0 +1,24 @@
+<h1>SENT SMS LIST</h1>
+This is the list of SENT SMS
+<br>
+
+
+<table>
+    <tr>
+        <td>Number</td>
+        <td>Created</td>
+        <td>Try</td>
+        <td>Sender</td>
+        <td>Message</td>
+    </tr>
+    {% for sms in data.list %}
+        <tr>
+            <td>{{ sms.number.value }}</td>
+            <td>{{ sms.created.value | date('Y-m-d H:i:s')}}</td>
+            <td>{{ sms.no_send_stry.value }}</td>
+            <td>{{ sms.sender.value }}</td>
+            <td>{{ sms.message.value }}</td>
+        </tr>
+    {% endfor %}
+
+</table>
