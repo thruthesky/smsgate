@@ -116,7 +116,7 @@ class SMSGateController extends ControllerBase
     }
 
     private static function write( &$data ) {
-
+	self::checkLogin($data);
     }
     private static function write_submit( &$data ) {
 
@@ -243,21 +243,6 @@ class SMSGateController extends ControllerBase
         }
         else $id = 0;
         return self::json(['error'=>0, 'id'=>$id]);
-    }
-
-    /**
-     * @param $number
-     * @return mixed
-     *
-     * @note Sanatize phone numbers
-     */
-    private static function adjustNumber($number)
-    {
-        // remove all except numbers
-        $number = preg_replace("/[^0-9]/", '', $number);
-        $number = str_replace("639", "09", $number);
-        $number = str_replace("630", "0", $number);
-        return $number;
     }
 
 }
