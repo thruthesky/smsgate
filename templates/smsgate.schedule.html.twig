@@ -14,9 +14,9 @@ This data will be sent soon<br>
 {% for sms in data.list %}
     <tr>
         <td>{{ sms.number.value }}</td>
-        <td>{{ sms.created.value | date('Y-m-d H:i:s')}}</td>
+        <td>{{ sms.created.value | date('m-d H:i:s')}}</td>
         <td>
-            {{ sms.stamp_next_send.value ? sms.stamp_next_send.value | date('H:i:s') : '0'}}
+            {{ sms.stamp_next_send.value ? sms.stamp_next_send.value | date('m-d H:i:s') : '0'}}
         </td>
         <td>{{ sms.no_send_stry.value }}</td>
         <td>{{ sms.sender.value }}</td>
