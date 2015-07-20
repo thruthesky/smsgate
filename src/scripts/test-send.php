@@ -16,14 +16,13 @@ $numbers = [
     '09174678603',
     '09067104270',
     '09057210344',
-    '09265581264',
 ];
 
 $client = new Client();
 
 for ( $i = 0; $i < 10 ; $i ++) {
     foreach( $numbers as $number) {
-        $message = "F Message No. $i";
+        $message = "G Message No. $i";
         $url = "$url_server/smsgate/send?username=$username&password=$password&number=$number&message=$message";
         $response = $client->post($url, [], ['verify'=>false]);
         $code = $response->getStatusCode();
