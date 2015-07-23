@@ -184,9 +184,9 @@ class SMSGateController extends ControllerBase
             return false;
         }
 
-        if ( strlen($request->get('message')) > 255 ) {
+        if ( strlen($request->get('message')) > 160 ) {
             $re['error'] = -411;
-            $re['message'] = 'Message is longer than 255 characters';
+            $re['message'] = 'Message is longer than 159 characters';
             return false;
         }
         return true;

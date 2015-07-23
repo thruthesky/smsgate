@@ -42,6 +42,7 @@ class Data extends ContentEntityBase {
             ->fields(null, ['id'])
             ->condition('stamp_next_send', time(), '<')
             ->orderBy('priority', 'DESC')
+            ->orderBy('stamp_next_send', 'ASC')
             ->orderBy('created', 'ASC')
             ->range(0, 1)
             ->execute();
