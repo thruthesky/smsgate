@@ -11,6 +11,17 @@
 {% include 'modules/smsgate/templates/smsgate.menu.html.twig' %}
 Create New SMS<br>
 <form action="/smsgate/write_submit">
+
+    <div class="row">
+        <div class="caption">Priority</div>
+        <div class="text">
+            <input type="radio" name="priority" value="0"> 0,
+            <input type="radio" name="priority" value="1"> 1
+            <input type="radio" name="priority" value="2"> 2
+            <input type="radio" name="priority" value="3"> 3
+        </div>
+    </div>
+
     <div class="row">
         <div class="caption">Numbers</div>
         <div class="text"><textarea name="numbers"></textarea></div>

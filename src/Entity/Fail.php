@@ -11,9 +11,9 @@ use Drupal\user\UserInterface;
  * @note refer https://docs.google.com/document/d/1jFAlx74PJV_KkkAmPAL0q9oCewBdHv2Av6_CpzIQelg/edit
  *
  * @ContentEntityType(
- *   id = "smsgate_data",
- *   label = @Translation("SMSGate Data entity"),
- *   base_table = "smsgate_data",
+ *   id = "smsgate_fail",
+ *   label = @Translation("SMSGate Fail entity"),
+ *   base_table = "smsgate_fail",
  *   fieldable = TRUE,
  *   entity_keys = {
  *     "id" = "id",
@@ -22,78 +22,7 @@ use Drupal\user\UserInterface;
  *   }
  * )
  */
-class Data extends ContentEntityBase {
-
-    /**
-     *
-     * @see https://docs.google.com/document/d/1jFAlx74PJV_KkkAmPAL0q9oCewBdHv2Av6_CpzIQelg/edit#heading=h.e95bj4yvltvz
-     *
-     *
-     * This will extract an SMS data to deliver to SMSGate client(sender)
-     *
-     * Once it is extracted, it sets 5 minutes for the next try if every it needs to be re-send.
-     *
-     */
-    public static function getDataNextTry()
-    {
-        self::moveOldFailData();
-        $request = \Drupal::request();
-        $result = db_select('smsgate_data')
-            ->fields(null, ['id'])
-            ->condition('stamp_next_send', time(), '<')
-            ->orderBy('priority', 'DESC')
-            ->orderBy('created', 'ASC')
-            ->range(0, 1)
-            ->execute();
-        $row = $result->fetchAssoc(\PDO::FETCH_ASSOC);
-        $re = [];
-        if ( $row ) {
-            $data = self::load($row['id']);
-            $data
-                ->set('stamp_next_send', time() + 60 * 5)
-                ->set('sender', $request->get('sender'))
-                ->save();
-            $re['id'] = $data->id();
-            $re['number'] = $data->get('number')->value;
-            $re['message'] = $data->get('message')->value;
-
-
-            /**
-             *
-             * @note Delete if the data is not valid and return empty array.
-             */
-            if ( ! is_numeric($re['number']) ) {
-                $fail = Fail::create();
-
-                $fail->setOwnerId($data->getOwnerId());
-
-                $fail->set('stamp_record', $data->get('stamp_record')->value);
-                $fail->set('no_send_try', $data->get('no_send_try')->value);
-                $fail->set('sender', $request->get('sender'));
-                $fail->set('number', $data->get('number')->value);
-                $fail->set('message', $data->get('message')->value);
-                $fail->set('reason', 'Number is not numeric');
-                $fail->save();
-                $data->delete();
-
-                $re = ['error'=>-4012, 'message'=>'Number is not numeric'];
-            }
-
-
-        }
-
-        return $re;
-    }
-
-    /**
-     * @todo check if this function is needed. Mostly mobile numbers will be delivered.
-     * Transfer data which is older than 5 days and failed more than 100 times.
-     *
-     */
-    private static function moveOldFailData()
-    {
-
-    }
+class Fail extends ContentEntityBase {
 
     /**
      * {@inheritdoc}
@@ -179,23 +108,9 @@ class Data extends ContentEntityBase {
                 'max_length' => 32,
             ));
 
-
-
-        $fields['priority'] = BaseFieldDefinition::create('integer')
-            ->setLabel(t('Priority'))
-            ->setDescription(t('Priority to send SMS'))
-            ->setDefaultValue(0);
-
-
         $fields['stamp_record'] = BaseFieldDefinition::create('integer')
             ->setLabel(t('Stamp Record'))
             ->setDescription(t('the stamp of the time that this SMS was received to be scheduled'))
-            ->setDefaultValue(0);
-
-
-        $fields['stamp_next_send'] = BaseFieldDefinition::create('integer')
-            ->setLabel(t('Stamp Send Try'))
-            ->setDescription(t('the stamp of the time that the gate tried last.'))
             ->setDefaultValue(0);
 
         $fields['no_send_try'] = BaseFieldDefinition::create('integer')
@@ -203,10 +118,18 @@ class Data extends ContentEntityBase {
             ->setDescription(t('The number of send. It is the number of failure also.'))
             ->setDefaultValue(0);
 
-
         $fields['sender'] = BaseFieldDefinition::create('string')
             ->setLabel(t('Sender'))
             ->setDescription(t('The mobile which sent this sms.'))
+            ->setSettings(array(
+                'default_value' => '',
+                'max_length' => 255,
+            ));
+
+
+        $fields['reason'] = BaseFieldDefinition::create('string')
+            ->setLabel(t('Reason'))
+            ->setDescription(t('Reason why it failed.'))
             ->setSettings(array(
                 'default_value' => '',
                 'max_length' => 255,

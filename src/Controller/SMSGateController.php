@@ -11,22 +11,31 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class SMSGateController extends ControllerBase
 {
 
+    const no_message = -40123;
+    const number_is_string = -40124;
+    const no_number = -40125;
     private static $input;
+
+    public static function getErrorMessage($code) {
+        $msg = "Unknown";
+        switch( $code ) {
+            case self::no_message : return "No message.";
+            case self::number_is_string : return "The number is string. It should be numeric.";
+            case self::no_number : return "No number. Number is not provided or wrong number(string only) is provided.";
+        }
+        return $msg;
+    }
 
     public static function defaultController($page=null)
     {
         $data = [];
         $data['input'] = self::input();
 
-
-
         /** @note default value for page */
         if ( $page == null ) $page = 'index';
         else if ( $page == 'list' ) $page = 'collect';
 
         $data['page'] = $page;
-
-
 
         if ( $render = self::$page($data) ) return $render;
         else {
@@ -125,9 +134,11 @@ class SMSGateController extends ControllerBase
             $_numbers = $request->get('numbers');
             $numbers = explode("\n", $_numbers);
             foreach($numbers as $number) {
-                $number = self::adjustNumber($number);
-                $id = self::insertData(self::uid(), $number, $request->get('message'));
-                $data['list'][$id]['number'] = $number;
+                $id = self::insertData(self::uid(), $number, $request->get('message'), $request->get('priority'));
+                if ( $id < 0 ) {
+                    $data['list'][$id]['number'] = "$number - ERROR($id) : " . self::getErrorMessage($id);
+                }
+                else $data['list'][$id]['number'] = $number;
             }
         }
     }
@@ -204,10 +215,29 @@ class SMSGateController extends ControllerBase
     private static function createDataRecord(&$re,$uid)
     {
         $request = \Drupal::request();
-        $re['error'] = 0;
-        $re['id'] = self::insertData($uid, $request->get('number'), $request->get('message'));
+        $id = self::insertData($uid, $request->get('number'), $request->get('message'), $request->get('priority'));
+        if ( $id < 0 ) {
+            $re['error'] = $id;
+            $re['message'] = "ERROR($id) : " . self::getErrorMessage($id);
+        }
+        else {
+            $re['error'] = 0;
+            $re['id'] = $id;
+        }
     }
-    private static function insertData($uid, $number, $message) {
+    private static function insertData($uid, $number, $message, $priority) {
+
+        $number = self::adjustNumber($number);
+        if ( empty($number) ) {
+            return self::no_number;
+        }
+        else if ( ! is_numeric($number) ) {
+            return self::number_is_string;
+        }
+        else if ( empty($message) ) {
+            return self::no_message;
+        }
+
         $data = Data::create();
         $data->setOwnerId($uid);
         $data->set('number', $number);
@@ -215,6 +245,8 @@ class SMSGateController extends ControllerBase
         $data->set('stamp_record', time());
         $data->set('stamp_next_send', 0);
         $data->set('no_send_try', 0);
+        if ( empty($priority) ) $priority = 0;
+        $data->set('priority', $priority);
         $data->save();
         return $data->id();
     }
@@ -257,7 +289,7 @@ class SMSGateController extends ControllerBase
 
     private static function adjustNumber($number)
     {
-        $number = preg_replace("/[^0-9]/", '', $number);
+        $number = preg_replace("/[^0-9]/", '', $number); // remove all characters
         $number = str_replace("639", "09", $number);
         $number = str_replace("630", "0", $number);
         $number = str_replace("63", "0", $number);
