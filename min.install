@@ -1,6 +1,0 @@
-<?php
-
-function smsgate_install()
-{
-
-}
