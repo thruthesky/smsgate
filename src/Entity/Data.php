@@ -43,7 +43,7 @@ class Data extends ContentEntityBase {
             ->condition('stamp_next_send', time(), '<')
             ->orderBy('priority', 'DESC')
             ->orderBy('stamp_next_send', 'ASC')
-            ->orderBy('created', 'ASC')
+            ->orderBy('id', 'ASC')
             ->range(0, 1)
             ->execute();
         $row = $result->fetchAssoc(\PDO::FETCH_ASSOC);

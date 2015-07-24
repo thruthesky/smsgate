@@ -155,6 +155,7 @@ class SMSGateController extends ControllerBase
         $message = $request->get('message');
         $howmany = $request->get('howmany');
         $day = $request->get('day');
+        $last_number = $request->get('last_number');
         $err = [];
         if ( empty($message) ) $err = ['error'=>-4001, 'message'=>'No message'];
         if ( strlen($message) < 10 ) $err = ['error'=>-4001, 'message'=>'Too short message'];
@@ -190,6 +191,16 @@ class SMSGateController extends ControllerBase
                 'message' => self::getErrorMessage($id),
             ];
         }
+
+        if ( ! empty($last_number) ) {
+            $id = self::insertData(self::uid(), $last_number, "Mass Message Sending Complete. how may: $howmany, days ago: $day", 0);
+            $list[] = [
+                'number' => $last_number,
+                'id' => 0,
+                'message' => "This is the last number!",
+            ];
+        }
+
         $data['list'] = $list;
     }
 

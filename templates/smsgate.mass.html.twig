@@ -28,6 +28,15 @@
         <div class="caption">Message</div>
         <div class="text"><textarea name="message"></textarea></div>
     </div>
+
+
+    <div class="row">
+        <div class="caption">Last Number</div>
+        <div class="text">
+            <input type="text" name="last_number" value=""> ex) 0917-123-4567
+        </div>
+    </div>
+
     <input type="submit">
 </form>
 
@@ -49,8 +58,15 @@
         Input message less than 159 characters.
     </li>
     <li>
+        Last number<br>
+        Normally messages are sent by the order by scheduled time.<br>
+        If you input last number, the number will be added 1 second later after all data had been scheduled.<br>
+        So, it acts as a notification when the all the SMS of this "howmany" have been sent!
+    </li>
+    <li>
         Numbers of last sent 에는 일단위로 기간을 정하는데, 특정 기간이내에 문자를 전송한 번호는 그 기간내에 다시 전송하지 않도록 하는 것이다.<br>
         즉, Numbers of last sent 에는 같은 전화번호로 너무 자주 문자를 보내지 않도록 하기 위한 것이다.<br>
         How Many 는 한번 전송 할 때, 몇개의 전화번호에 전송하는지 지정하는 것이며, 이 전화번호들은 "Numbers of last sent" 기간에 전송되지 않은(그 이전에 전송된) 번호들이다.<br>
+        Last number 는 모든 문자를 전송하고 나서 전송이되는 문자이다. 모든 문자 전송이 되었다는 확인 문자 메세지로 보면 되며, 전송하는 사람의 전화번호를 입력하면 된다.<br>
     </li>
 </ul>
