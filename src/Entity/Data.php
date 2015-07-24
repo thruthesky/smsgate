@@ -59,31 +59,38 @@ class Data extends ContentEntityBase {
             $re['message'] = $data->get('message')->value;
 
 
+
             /**
              *
              * @note Delete if the data is not valid and return empty array.
              */
-            if ( ! is_numeric($re['number']) ) {
-                $fail = Fail::create();
-
-                $fail->setOwnerId($data->getOwnerId());
-
-                $fail->set('stamp_record', $data->get('stamp_record')->value);
-                $fail->set('no_send_try', $data->get('no_send_try')->value);
-                $fail->set('sender', $request->get('sender'));
-                $fail->set('number', $data->get('number')->value);
-                $fail->set('message', $data->get('message')->value);
-                $fail->set('reason', 'Number is not numeric');
-                $fail->save();
-                $data->delete();
-
-                $re = ['error'=>-4012, 'message'=>'Number is not numeric'];
-            }
-
+            if ( ! is_numeric($re['number']) ) $re = self::wrongData($data, "Number is not Numeric");
+            else if ( strlen($re['message']) > 159 ) $re = self::wrongData($data, "Message must be shorter than 159 letters.");
 
         }
 
         return $re;
+    }
+
+    /**
+     * @param $data
+     * @param $error_message
+     * @return array
+     */
+    private static function wrongData($data, $error_message) {
+        $request = \Drupal::request();
+        $fail = Fail::create();
+        $fail->setOwnerId($data->getOwnerId());
+        $fail->set('stamp_record', $data->get('stamp_record')->value);
+        $fail->set('no_send_try', $data->get('no_send_try')->value);
+        $fail->set('sender', $request->get('sender'));
+        $fail->set('number', $data->get('number')->value);
+        $fail->set('message', $data->get('message')->value);
+        $fail->set('reason', $error_message);
+        $fail->save();
+        $data->delete();
+
+        return ['error'=>-4012, 'message'=>$error_message];
     }
 
     /**

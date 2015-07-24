@@ -6,7 +6,7 @@ $client = new Client();
 
 
 
-for($i=0; $i<=5; $i++) {
+for($i=0; $i<=50; $i++) {
     $response = $client->get($url, ['verify'=>false]);
     $code = $response->getStatusCode();
     $re = $response->json();
