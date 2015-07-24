@@ -1,0 +1,11 @@
+<h1>Mass SMS Sending Result</h1>
+<hr>
+{% for data in data.list %}
+    <div>
+        No.: {{ data.id }}
+        Number: {{ data.number }}
+        {% if data.message %}
+            {{ data.message }}
+        {% endif %}
+    </div>
+{% endfor %}

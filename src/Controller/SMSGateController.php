@@ -22,6 +22,7 @@ class SMSGateController extends ControllerBase
     private static $input;
 
     public static function getErrorMessage($code) {
+        if ( $code >= 0 ) return null;
         $msg = "Unknown";
         switch( $code ) {
             case self::no_message : return "No message.";
@@ -133,7 +134,6 @@ class SMSGateController extends ControllerBase
 	self::checkLogin($data);
     }
     private static function write_submit( &$data ) {
-
         if ( self::validateInput($data) ) {
             $request = \Drupal::request();
             $_numbers = $request->get('numbers');
@@ -146,6 +146,51 @@ class SMSGateController extends ControllerBase
                 else $data['list'][$id]['number'] = $number;
             }
         }
+    }
+
+    private static function mass_write_submit( &$data ) {
+        $request = \Drupal::request();
+
+        /// Check Input
+        $message = $request->get('message');
+        $howmany = $request->get('howmany');
+        $day = $request->get('day');
+        $err = [];
+        if ( empty($message) ) $err = ['error'=>-4001, 'message'=>'No message'];
+        if ( strlen($message) < 10 ) $err = ['error'=>-4001, 'message'=>'Too short message'];
+        if ( strlen($message) > 159 ) $err = ['error'=>-4001, 'message'=>'Too long message'];
+        if ( empty($howmany) || $howmany == 0 ) $err = ['error'=>-4001, 'message'=>'Empty how many numbers'];
+        if ( empty($day) ) $err = ['error'=>-4001, 'message'=>'Empty days ago'];
+        if ( $err ) {
+            $data['error'] = $err['error'];
+            $data['message'] = $err['message'];
+            return;
+        }
+
+        /// GET NUMBERS
+
+        $stamp = time() - $day * 60 * 24;
+        $db = db_select("sms_numbers");
+        $db->fields(null, ['idx','mobile_number']);
+        $db->condition('stamp_last_sent', $stamp, '<');
+        $db->range(0, $howmany);
+        $result = $db->execute();
+        $list = [];
+        while ( $row = $result->fetchAssoc(\PDO::FETCH_ASSOC) ) {
+            $idx = $row['idx'];
+            $number = $row['mobile_number'];
+            $id = self::insertData(self::uid(), $number, $message, 0);
+            db_update('sms_numbers')
+                ->fields(['stamp_last_sent'=>time()])
+                ->condition('idx', $idx)
+                ->execute();
+            $list[] = [
+                'number' => $number,
+                'id' => $id,
+                'message' => self::getErrorMessage($id),
+            ];
+        }
+        $data['list'] = $list;
     }
 
 
@@ -189,7 +234,7 @@ class SMSGateController extends ControllerBase
             return false;
         }
 
-        if ( strlen($request->get('message')) > 160 ) {
+        if ( strlen($request->get('message')) > 159 ) {
             $re['error'] = -411;
             $re['message'] = 'Message is longer than 159 characters';
             return false;
@@ -299,6 +344,11 @@ class SMSGateController extends ControllerBase
         $number = str_replace("630", "0", $number);
         $number = str_replace("63", "0", $number);
         return $number;
+    }
+
+
+    private static function mass() {
+
     }
 
 }

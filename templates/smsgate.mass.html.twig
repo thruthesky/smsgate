@@ -1,0 +1,56 @@
+<style>
+    textarea[name='message'] {
+        width:200px;
+        min-height:100px;
+    }
+</style>
+<h1>Mass SMS Sender</h1>
+
+<form action="/smsgate/mass_write_submit">
+
+
+    <div class="row">
+        <div class="caption">Numbers of last sent</div>
+        <div class="text">
+            <input type="text" name="day" value="7"> days ago. default is 7 days.
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="caption">How Many</div>
+        <div class="text">
+            How many do you want to send at once? Input number. ex) 100, 200, 500, 12345<br>
+            <input type="text" name="howmany" value="100"> default is 100 numbers.
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="caption">Message</div>
+        <div class="text"><textarea name="message"></textarea></div>
+    </div>
+    <input type="submit">
+</form>
+
+<ul>
+    <li>
+        Number of last send<br>
+        Input number of days.<br>
+        If you input 1, then it only send SMS to numbers which are not sent within 1 day.<br>
+        If you input 20, then it only send SMS to numbers which are not sent within 20 days.<br>
+        Use it not to abuse numbers.
+    </li>
+    <li>
+        How Many<br>
+        Input number of how numbers to send.<br>
+        If you input 1234, then It will pick 1234 numbers from database and schedule it to SMSGate.<br>
+        Once the numbers are already sent, it will update stamp_last_send and it will not be sent again within the day of "Numbers of last send"
+    </li>
+    <li>
+        Input message less than 159 characters.
+    </li>
+    <li>
+        Numbers of last sent 에는 일단위로 기간을 정하는데, 특정 기간이내에 문자를 전송한 번호는 그 기간내에 다시 전송하지 않도록 하는 것이다.<br>
+        즉, Numbers of last sent 에는 같은 전화번호로 너무 자주 문자를 보내지 않도록 하기 위한 것이다.<br>
+        How Many 는 한번 전송 할 때, 몇개의 전화번호에 전송하는지 지정하는 것이며, 이 전화번호들은 "Numbers of last sent" 기간에 전송되지 않은(그 이전에 전송된) 번호들이다.<br>
+    </li>
+</ul>
