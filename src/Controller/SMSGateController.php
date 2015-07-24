@@ -1,4 +1,9 @@
 <?php
+/**
+ *
+ * https://docs.google.com/document/d/1KDT0XGtfjeelYr7F01RPyNI0qNf_LRxL9UXSwp6Mz0U/edit#heading=h.5wq4irb6gdmr
+ * https://docs.google.com/document/d/1eKMqEP2JZXZVry-xQO7rc7IcNaFlQroetYv4WwhuZC4/edit#heading=h.z9quhudk3pel
+ */
 namespace Drupal\smsgate\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
