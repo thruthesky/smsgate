@@ -172,17 +172,18 @@ class SMSGateController extends ControllerBase
 
         $stamp = time() - $day * 60 * 24;
         $db = db_select("sms_numbers");
-        $db->fields(null, ['idx','mobile_number']);
+        $db->fields(null, ['idx','count_sent','mobile_number']);
         $db->condition('stamp_last_sent', $stamp, '<');
         $db->range(0, $howmany);
         $result = $db->execute();
         $list = [];
         while ( $row = $result->fetchAssoc(\PDO::FETCH_ASSOC) ) {
             $idx = $row['idx'];
+            $count_sent = $row['count_sent'] + 1;
             $number = $row['mobile_number'];
             $id = self::insertData(self::uid(), $number, $message, 0);
             db_update('sms_numbers')
-                ->fields(['stamp_last_sent'=>time()])
+                ->fields(['stamp_last_sent'=>time(), 'count_sent'=>$count_sent])
                 ->condition('idx', $idx)
                 ->execute();
             $list[] = [
