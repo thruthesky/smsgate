@@ -65,7 +65,7 @@ class Data extends ContentEntityBase {
              * @note Delete if the data is not valid and return empty array.
              */
             if ( ! is_numeric($re['number']) ) $re = self::wrongData($data, "Number is not Numeric");
-            else if ( strlen($re['number']) != 11 ) $re = self::wrongData($data, "Number is not 11 digits");
+            else if ( strlen($re['number']) != 11 ) $re = self::wrongData($data, "Number must be 11 digits. This number $re[number] is not in 11 digits.");
             if ( $re['number'][2] == '0' && $re['number'][3] == '0' ) $re = self::wrongData($data, "Number cannot have 0 on the 3rd and 4th position of the numbers.");
             else if ( strlen($re['message']) > 159 ) $re = self::wrongData($data, "Message must be shorter than 159 letters.");
 
