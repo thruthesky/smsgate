@@ -1,11 +1,27 @@
 <h1>Mass SMS Sending Result</h1>
 <hr>
+<table>
+    <tr>
+        <td>No</td>
+        <td>Number</td>
+        <td>Keyword</td>
+        <td>Location</td>
+        <td>Title</td>
+        <td>Etc</td>
+    </tr>
 {% for data in data.list %}
-    <div>
-        No.: {{ data.id }}
-        Number: {{ data.number }}
-        {% if data.message %}
-            {{ data.message }}
-        {% endif %}
-    </div>
+    <tr>
+        <td>{{ data.id }}</td>
+        <td>{{ data.number }}</td>
+        <td>{{ data.keyword }}</td>
+        <td>{{ data.location }}</td>
+        <td>{{ data.title }}</td>
+        <td>
+            {% if data.message %}
+                {{ data.message }}
+            {% endif %}
+        </td>
+    </tr>
 {% endfor %}
+
+</table>

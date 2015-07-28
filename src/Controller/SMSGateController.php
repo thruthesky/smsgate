@@ -170,9 +170,16 @@ class SMSGateController extends ControllerBase
 
         /// GET NUMBERS
 
-        $stamp = time() - $day * 60 * 24;
+        //
+        $stamp = time() - $day * 60 * 24; // days
         $db = db_select("sms_numbers");
-        $db->fields(null, ['idx','count_sent','mobile_number']);
+        $db->fields(null, ['idx','count_sent','mobile_number', 'title', 'keyword', 'location']);
+        if ( $keyword = $request->get('keyword') ) {
+            $db->condition('keyword', $keyword);
+        }
+        if ( $location = $request->get('location') ) {
+            $db->condition('location', $location);
+        }
         $db->condition('stamp_last_sent', $stamp, '<');
         $db->range(0, $howmany);
         $result = $db->execute();
@@ -189,6 +196,9 @@ class SMSGateController extends ControllerBase
             $list[] = [
                 'number' => $number,
                 'id' => $id,
+                'title' => $row['title'],
+                'keyword' => $row['keyword'],
+                'location' => $row['location'],
                 'message' => self::getErrorMessage($id),
             ];
         }
@@ -212,8 +222,6 @@ class SMSGateController extends ControllerBase
     private static function sent( &$data ) {
         $data['list'] = Sent::loadMultiple();
     }
-
-
 
     /**
      * @param $data
@@ -359,7 +367,18 @@ class SMSGateController extends ControllerBase
     }
 
 
-    private static function mass() {
+    private static function mass(array & $data) {
+        $result = db_query("SELECT `keyword`, COUNT(*) as cnt FROM sms_numbers GROUP BY `keyword`");
+
+        while ( $row = $result->fetchAssoc(\PDO::FETCH_ASSOC) ) {
+            $data['keywords'][$row['keyword']] = $row['cnt'];
+        }
+
+        $result = db_query("SELECT `location` FROM sms_numbers GROUP BY `location`");
+
+        while ( $row = $result->fetchAssoc(\PDO::FETCH_ASSOC) ) {
+            $data['location'][] = $row['location'];
+        }
 
     }
 

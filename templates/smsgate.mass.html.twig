@@ -1,7 +1,7 @@
 <style>
     textarea[name='message'] {
-        width:200px;
-        min-height:100px;
+        width:240px;
+        min-height:140px;
     }
 </style>
 <h1>Mass SMS Sender</h1>
@@ -24,11 +24,35 @@
         </div>
     </div>
 
+
+
+    <div class="row">
+        <div class="caption">Keyword and Location</div>
+        <div class="text">
+
+            <select name="keyword">
+            {% for keyword,count in data.keywords %}
+                <option value="{{ keyword }}">{{ keyword }} ({{ count }})</option>
+            {% endfor %}
+            </select>
+
+
+            <select name="location">
+                {% for location in data.location %}
+                    <option value="{{ location }}">{{ location }}</option>
+                {% endfor %}
+            </select>
+
+
+        </div>
+    </div>
+
+
+
     <div class="row">
         <div class="caption">Message</div>
         <div class="text"><textarea name="message"></textarea></div>
     </div>
-
 
     <div class="row">
         <div class="caption">Last Number</div>
